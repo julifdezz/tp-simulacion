@@ -1,42 +1,15 @@
+## DOCUMENTATION
+
+https://doc.qt.io/qtforpython-6/
+
+
+
 import numpy as np
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QLabel,
     QLineEdit, QComboBox, QTextEdit
 )
 import sys
-
-# Funcion para generar valores de variables aleatorias segun la distribucion seleccionada
-def generar_numeros(distribucion, media, varianza, cantidad):
-    if distribucion == "Normal":
-        # En la normal: media = mu, varianza = sigma^2 → sigma = sqrt(varianza)
-        sigma = np.sqrt(varianza)
-        return np.random.normal(loc=media, scale=sigma, size=cantidad)
-
-    elif distribucion == "Poisson":
-        # En Poisson, la media = varianza = λ
-        # Si se ingresan media y varianza diferentes, se ignora la varianza
-        lam = media
-        return np.random.poisson(lam=lam, size=cantidad)
-
-    elif distribucion == "Exponencial":
-        # En exponencial: media = 1/lambda → lambda = 1/media
-        # Y varianza = 1/lambda²
-        lam = 1 / media
-        return np.random.exponential(scale=1/lam, size=cantidad)
-
-    elif distribucion == "Uniforme":
-        # Para distribución uniforme:
-        # media = (a + b)/2
-        # varianza = (b - a)^2 / 12
-        # Se puede despejar a y b:
-        rango = np.sqrt(12 * varianza)
-        a = media - rango / 2
-        b = media + rango / 2
-        return np.random.uniform(low=a, high=b, size=cantidad)
-
-    else:
-        raise ValueError("Distribución no soportada.")
-
 
 class GeneradorApp(QWidget):
     def __init__(self):
@@ -73,11 +46,10 @@ class GeneradorApp(QWidget):
 
         # Botón
         self.generar_btn = QPushButton("Generar")
-        self.generar_btn.clicked.connect(self.generar)
 
         # Resultado
-        self.resultado_text = QTextEdit()
-        self.resultado_text.setReadOnly(True)
+        self.resultado = QTextEdit()
+        self.resultado.setReadOnly(True)
 
         # Agregar campos a la ventana
         layout.addWidget(self.distribucion_label)
@@ -96,7 +68,7 @@ class GeneradorApp(QWidget):
         layout.addWidget(self.intervalos_input)
 
         layout.addWidget(self.generar_btn)
-        layout.addWidget(self.resultado_text)
+        layout.addWidget(self.resultado)
 
         self.setLayout(layout)
 
@@ -109,25 +81,6 @@ class GeneradorApp(QWidget):
             self.varianza_label.show()
             self.varianza_input.show()
             self.media_label.setText("Media:")
-
-    def generar(self):
-        try:
-            distribucion = self.distribucion_combo.currentText()
-            media = float(self.media_input.text())
-            varianza = float(self.varianza_input.text())
-            cantidad = int(self.cantidad_input.text())
-
-            if varianza < 0:
-                raise ValueError("La varianza debe ser mayor a cero.")
-                
-            if 0 < cantidad <= 50000:
-                numeros = generar_numeros(distribucion, media, varianza, cantidad)
-            else: 
-                raise ValueError("La cantidad debe ser entre [1, 50000].")
-            
-            self.resultado_text.setText(f"Números generados ({distribucion}):\n{numeros}")
-        except Exception as e:
-            self.resultado_text.setText(f"Error: {e}")       
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
