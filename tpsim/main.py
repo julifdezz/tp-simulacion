@@ -1,16 +1,9 @@
 import numpy as np
-
-
-# media = int(input('Ingrese el valor de la media: '))
-# desv = float(input('Ingrese el valor de la desviacion estandar: '))
-# m = int(input('Ingrese el tamaño de la muestra: '))
-
-# def validar(num):
-#     pass
-
-
-# def generarNormal():
-#     pass
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit, QHBoxLayout, QComboBox, QTextEdit)
+import sys 
+# To do List
+# Faltan los intervalos (agregar en el layout de la app, y a su vez agregar la libreria para el histograma B))
+# Alan G. slds
 
 
 def generar_numeros(distribucion, media, varianza, cantidad):
@@ -44,18 +37,73 @@ def generar_numeros(distribucion, media, varianza, cantidad):
     else:
         raise ValueError("Distribución no soportada.")
 
-def main():
-    print("Distribuciones soportadas: normal, poisson, exponencial, uniforme")
-    distribucion = input("Ingrese la distribución deseada: ").strip().lower()
-    media = float(input("Ingrese la media: "))
-    varianza = float(input("Ingrese la varianza: "))
-    cantidad = int(input("Cantidad de números a generar: "))
+class GUI(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Generador de Números Aleatorios")
+        self.setMinimumWidth(400)
+        self.setup_ui()
+    
+    def setup_ui(self):
+        layout = QVBoxLayout()
 
-    try:
-        numeros = generar_numeros(distribucion, media, varianza, cantidad)
-        print(f"\nNúmeros generados ({distribucion}):\n{numeros}")
-    except Exception as e:
-        print(f"Error: {e}")
+        # Selección de Distribución
+        self.distribucion_label = QLabel("Distribución:")
+        self.distribucion_combo = QComboBox()
+        self.distribucion_combo.addItems(["normal", "poisson", "exponencial", "uniforme"])
+
+        # Media
+        self.media_label = QLabel("Media:")
+        self.media_input = QLineEdit()
+
+        # Varianza
+        self.varianza_label = QLabel("Varianza:")
+        self.varianza_input = QLineEdit()
+
+        # Cantidad
+        self.cantidad_label = QLabel("Cantidad:")
+        self.cantidad_input = QLineEdit()
+
+        # Botón para Generar los números
+        self.boton = QPushButton("Generar")
+        self.boton.clicked.connect(self.generar)
+
+        # Resultado
+        self.resultado_text = QTextEdit()
+        self.resultado_text.setReadOnly(True)
+
+        # Añadir widgets al layout
+        layout.addWidget(self.distribucion_label)
+        layout.addWidget(self.distribucion_combo)
+
+        layout.addWidget(self.media_label)
+        layout.addWidget(self.media_input)
+
+        layout.addWidget(self.varianza_label)
+        layout.addWidget(self.varianza_input)
+
+        layout.addWidget(self.cantidad_label)
+        layout.addWidget(self.cantidad_input)
+
+        layout.addWidget(self.boton)
+        layout.addWidget(self.resultado_text)
+
+        self.setLayout(layout)
+
+    def generar(self):
+        try:
+            distribucion = self.distribucion_combo.currentText()
+            media = float(self.media_input.text())
+            varianza = float(self.varianza_input.text())
+            cantidad = int(self.cantidad_input.text())
+
+            numeros = generar_numeros(distribucion, media, varianza, cantidad)
+            self.resultado_text.setText(f"Números generados ({distribucion}):\n{numeros}")
+        except Exception as e:
+            self.resultado_text.setText(f"Error: {e}")                
 
 if __name__ == "__main__":
-    main()
+    app = QApplication(sys.argv)
+    ventana = GUI()
+    ventana.show()
+    sys.exit(app.exec_())
