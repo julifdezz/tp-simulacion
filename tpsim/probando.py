@@ -118,41 +118,49 @@ class GeneradorApp(QWidget):
         try:
             distribucion = self.distribucion_combo.currentText()
             media = float(self.media_input.text())
-            varianza = float(self.varianza_input.text())
             cantidad = int(self.cantidad_input.text())
             intervalos = int(self.intervalos_input.currentText())
 
-            if varianza < 0:
-                raise ValueError("La varianza debe ser mayor a cero.")
-                
+            # Solo convertir varianza si la distribución lo necesita
+            if distribucion in ["Normal", "Uniforme"]:
+                varianza_texto = self.varianza_input.text()
+                if varianza_texto == "":
+                    raise ValueError("La varianza no puede estar vacía.")
+                varianza = float(varianza_texto)
+                if varianza < 0:
+                    raise ValueError("La varianza debe ser mayor a cero.")
+            else:
+                varianza = None  # Se ignora para Poisson y Exponencial
+
             if 0 < cantidad <= 50000:
-                # Generar números según la distribución seleccionada
+                # Generar números
                 numeros = generar_numeros(distribucion, media, varianza, cantidad)
-                
-                # Guardar los números en un archivo CSV
+
+                # Guardar en CSV
                 archivo_csv = "datos.csv"
                 with open(archivo_csv, mode='w', newline='') as file:
                     writer = csv.writer(file)
                     for numero in numeros:
-                        writer.writerow([numero])  # Escribir cada número en una fila
-                
-                #Variable para leer el archivo CSV 
-                df = pd.read_csv('datos.csv', header = None) 
+                        writer.writerow([numero])
+
+                # Leer el archivo CSV
+                df = pd.read_csv('datos.csv', header=None)
                 plt.close()
 
-                #Crear el histograma
-                plt.hist(df[0], bins=intervalos, edgecolor='black')  # Ajusta 'bins' si quieres más o menos intervalos
+                # Crear histograma
+                plt.hist(df[0], bins=intervalos, edgecolor='black')
                 plt.title('Histograma de los Números Generados')
                 plt.xlabel('Valor')
                 plt.ylabel('Frecuencia')
                 plt.show()
-                
+
                 self.resultado_text.setText(f"Números generados ({distribucion}):\n{numeros}")
-            
-            else: 
+
+            else:
                 raise ValueError("La cantidad debe ser entre [1, 50000].")
         except Exception as e:
-            self.resultado_text.setText(f"Error: {e}")       
+            self.resultado_text.setText(f"Error: {e}")
+ 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
