@@ -4,8 +4,12 @@ from PyQt5.QtWidgets import (
     QLineEdit, QComboBox, QTextEdit
 )
 import sys
+import csv
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Funcion para generar valores de variables aleatorias segun la distribucion seleccionada
+
+# Función para generar valores de variables aleatorias según la distribución seleccionada
 def generar_numeros(distribucion, media, varianza, cantidad):
     if distribucion == "Normal":
         # En la normal: media = mu, varianza = sigma^2 → sigma = sqrt(varianza)
@@ -116,16 +120,37 @@ class GeneradorApp(QWidget):
             media = float(self.media_input.text())
             varianza = float(self.varianza_input.text())
             cantidad = int(self.cantidad_input.text())
+            intervalos = int(self.intervalos_input.currentText())
 
             if varianza < 0:
                 raise ValueError("La varianza debe ser mayor a cero.")
                 
             if 0 < cantidad <= 50000:
+                # Generar números según la distribución seleccionada
                 numeros = generar_numeros(distribucion, media, varianza, cantidad)
+                
+                # Guardar los números en un archivo CSV
+                archivo_csv = "datos.csv"
+                with open(archivo_csv, mode='w', newline='') as file:
+                    writer = csv.writer(file)
+                    for numero in numeros:
+                        writer.writerow([numero])  # Escribir cada número en una fila
+                
+                #Variable para leer el archivo CSV 
+                df = pd.read_csv('datos.csv', header = None) 
+                plt.close()
+
+                #Crear el histograma
+                plt.hist(df[0], bins=intervalos, edgecolor='black')  # Ajusta 'bins' si quieres más o menos intervalos
+                plt.title('Histograma de los Números Generados')
+                plt.xlabel('Valor')
+                plt.ylabel('Frecuencia')
+                plt.show()
+                
+                self.resultado_text.setText(f"Números generados ({distribucion}):\n{numeros}")
+            
             else: 
                 raise ValueError("La cantidad debe ser entre [1, 50000].")
-            
-            self.resultado_text.setText(f"Números generados ({distribucion}):\n{numeros}")
         except Exception as e:
             self.resultado_text.setText(f"Error: {e}")       
 
