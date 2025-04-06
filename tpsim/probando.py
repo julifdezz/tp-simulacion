@@ -1,8 +1,10 @@
 import numpy as np
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QLabel,
-    QLineEdit, QComboBox, QTextEdit, QCheckBox
+    QLineEdit, QComboBox, QTextEdit, QCheckBox, QHBoxLayout
 )
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QSize
 import sys
 import csv
 import pandas as pd
@@ -10,17 +12,16 @@ import matplotlib.pyplot as plt
 from scipy.stats import chisquare, norm, expon, poisson, kstest, anderson
 
 
-# Función para generar valores de variables aleatorias
+# -------------------------- FUNCIONES ESTADÍSTICAS --------------------------
 def generar_numeros(distribucion, media, varianza, cantidad):
     if distribucion == "Normal":
         sigma = np.sqrt(varianza)
         return np.random.normal(loc=media, scale=sigma, size=cantidad)
     elif distribucion == "Poisson":
-        lam = media
-        return np.random.poisson(lam=lam, size=cantidad)
+        return np.random.poisson(lam=media, size=cantidad)
     elif distribucion == "Exponencial":
         lam = 1 / media
-        return np.random.exponential(scale=1/lam, size=cantidad)
+        return np.random.exponential(scale=1 / lam, size=cantidad)
     elif distribucion == "Uniforme":
         rango = np.sqrt(12 * varianza)
         a = media - rango / 2
@@ -30,7 +31,6 @@ def generar_numeros(distribucion, media, varianza, cantidad):
         raise ValueError("Distribución no soportada.")
 
 
-# Prueba Chi-Cuadrado
 def prueba_chi_cuadrado(numeros, distribucion, bins):
     frecuencias_observadas, limites = np.histogram(numeros, bins=bins)
     total = len(numeros)
@@ -54,7 +54,6 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
             prob = cdf(limites[i + 1]) - cdf(limites[i])
             frecuencias_esperadas.append(prob * total)
 
-        # Ajustar suma esperada a la suma observada
         suma_obs = sum(frecuencias_observadas)
         suma_exp = sum(frecuencias_esperadas)
         if not np.isclose(suma_obs, suma_exp):
@@ -65,67 +64,74 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
     return chi2, p_valor
 
 
-# Prueba Kolmogorov–Smirnov
 def prueba_kolmogorov_smirnov(numeros, distribucion):
     if distribucion == "Normal":
         mu, sigma = np.mean(numeros), np.std(numeros)
-        stat, p_valor = kstest(numeros, 'norm', args=(mu, sigma))
+        return kstest(numeros, 'norm', args=(mu, sigma))
     elif distribucion == "Exponencial":
         scale = np.mean(numeros)
-        stat, p_valor = kstest(numeros, 'expon', args=(0, scale))
+        return kstest(numeros, 'expon', args=(0, scale))
     elif distribucion == "Uniforme":
         a, b = min(numeros), max(numeros)
-        stat, p_valor = kstest(numeros, 'uniform', args=(a, b - a))
+        return kstest(numeros, 'uniform', args=(a, b - a))
     else:
         raise ValueError("KS no soporta esta distribución.")
-    return stat, p_valor
 
 
-# Prueba Anderson-Darling
 def prueba_anderson_darling(numeros, distribucion):
     if distribucion == "Normal":
-        resultado = anderson(numeros, dist='norm')
+        return anderson(numeros, dist='norm')
     elif distribucion == "Exponencial":
-        resultado = anderson(numeros, dist='expon')
+        return anderson(numeros, dist='expon')
     elif distribucion == "Uniforme":
-        resultado = anderson(numeros, dist='uniform')
+        return anderson(numeros, dist='uniform')
     else:
         raise ValueError("Anderson-Darling no soporta esta distribución.")
-    return resultado
 
 
-# Interfaz con PyQt5
+# -------------------------- INTERFAZ --------------------------
 class GeneradorApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Generador de Números Aleatorios")
+        self.modo_oscuro = False
         self.setup_ui()
+        self.aplicar_tema()
 
     def setup_ui(self):
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
-        self.distribucion_label = QLabel("Distribución:")
+        # Header con botón de modo oscuro alineado a la derecha
+        header_layout = QHBoxLayout()
+        header_layout.addStretch()  # Esto empuja el botón a la derecha
+
+        self.modo_btn = QPushButton()
+        self.modo_btn.setIcon(QIcon("modo_oscuro.png"))  # Usa tu propio ícono aquí
+        self.modo_btn.setIconSize(QSize(24, 24))
+        self.modo_btn.setFixedSize(32, 32)
+        self.modo_btn.setStyleSheet("border: none;")  # Sin bordes ni fondo
+        self.modo_btn.setToolTip("Cambiar modo claro/oscuro")
+        self.modo_btn.clicked.connect(self.cambiar_modo)
+
+        header_layout.addWidget(self.modo_btn, alignment=Qt.AlignRight)
+        main_layout.addLayout(header_layout)
+
+        # Resto de los widgets como antes
         self.distribucion_combo = QComboBox()
         self.distribucion_combo.addItems(["Normal", "Poisson", "Exponencial", "Uniforme"])
         self.distribucion_combo.currentTextChanged.connect(self.actualizar_campos)
 
-        self.media_label = QLabel("Media:")
         self.media_input = QLineEdit()
-
-        self.varianza_label = QLabel("Varianza:")
         self.varianza_input = QLineEdit()
-
-        self.cantidad_label = QLabel("Cantidad de valores:")
         self.cantidad_input = QLineEdit()
 
-        self.intervalos_label = QLabel("Nº de intervalos (histograma):")
         self.intervalos_input = QComboBox()
         self.intervalos_input.addItems(["10", "15", "20", "25"])
-        self.intervalos_input.setCurrentIndex(0)
 
-        self.prueba_label = QLabel("Prueba estadística:")
         self.prueba_combo = QComboBox()
         self.prueba_combo.addItems(["Ninguna", "Chi-Cuadrado", "Kolmogorov-Smirnov", "Anderson-Darling"])
+
+        self.usar_existente_checkbox = QCheckBox("Usar datos existentes del archivo CSV (sin generar nuevos)")
 
         self.generar_btn = QPushButton("Generar")
         self.generar_btn.clicked.connect(self.generar)
@@ -133,35 +139,59 @@ class GeneradorApp(QWidget):
         self.resultado_text = QTextEdit()
         self.resultado_text.setReadOnly(True)
 
-        layout.addWidget(self.distribucion_label)
-        layout.addWidget(self.distribucion_combo)
-        layout.addWidget(self.media_label)
-        layout.addWidget(self.media_input)
-        layout.addWidget(self.varianza_label)
-        layout.addWidget(self.varianza_input)
-        layout.addWidget(self.cantidad_label)
-        layout.addWidget(self.cantidad_input)
-        layout.addWidget(self.intervalos_label)
-        layout.addWidget(self.intervalos_input)
-        layout.addWidget(self.prueba_label)
-        layout.addWidget(self.prueba_combo)
-        layout.addWidget(self.generar_btn)
-        layout.addWidget(self.resultado_text)
+        # Agregar widgets al layout
+        for etiqueta, widget in [
+            ("Distribución:", self.distribucion_combo),
+            ("Media:", self.media_input),
+            ("Varianza:", self.varianza_input),
+            ("Cantidad de valores:", self.cantidad_input),
+            ("Nº de intervalos (histograma):", self.intervalos_input),
+            ("Prueba estadística:", self.prueba_combo)
+        ]:
+            main_layout.addWidget(QLabel(etiqueta))
+            main_layout.addWidget(widget)
 
-        self.setLayout(layout)
+        main_layout.addWidget(self.usar_existente_checkbox)
+        main_layout.addWidget(self.generar_btn)
+        main_layout.addWidget(self.resultado_text)
+        self.setLayout(main_layout)
+
+
+    def aplicar_tema(self):
+        claro = """
+            QWidget { background-color: #f0f2f5; font-family: 'Segoe UI'; font-size: 14px; }
+            QLabel { color: #333; }
+            QLineEdit, QComboBox, QTextEdit {
+                background-color: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 5px;
+            }
+            QPushButton {
+                background-color: #0078d7; color: white; border-radius: 6px; padding: 8px;
+            }
+            QPushButton:hover { background-color: #005fa1; }
+        """
+        oscuro = """
+            QWidget { background-color: #1e1e1e; color: #ccc; font-family: 'Segoe UI'; font-size: 14px; }
+            QLabel { color: #fff; }
+            QLineEdit, QComboBox, QTextEdit {
+                background-color: #2b2b2b; color: #fff; border: 1px solid #555; border-radius: 6px; padding: 5px;
+            }
+            QPushButton {
+                background-color: #0078d7; color: white; border-radius: 6px; padding: 8px;
+            }
+            QPushButton:hover { background-color: #005fa1; }
+        """
+        self.setStyleSheet(oscuro if self.modo_oscuro else claro)
+
+    def cambiar_modo(self):
+        self.modo_oscuro = not self.modo_oscuro
+        self.aplicar_tema()
 
     def actualizar_campos(self, texto_distribucion):
-        # Mostrar u ocultar campo de varianza según la distribución
         if texto_distribucion in ["Poisson", "Exponencial"]:
-            self.varianza_label.hide()
             self.varianza_input.hide()
-            self.media_label.setText("Lambda:")
         else:
-            self.varianza_label.show()
             self.varianza_input.show()
-            self.media_label.setText("Media:")
 
-        # Actualizar pruebas disponibles según distribución
         self.prueba_combo.clear()
         self.prueba_combo.addItem("Ninguna")
         if texto_distribucion != "Poisson":
@@ -169,52 +199,50 @@ class GeneradorApp(QWidget):
             self.prueba_combo.addItem("Anderson-Darling")
         self.prueba_combo.addItem("Chi-Cuadrado")
 
-
     def generar(self):
         try:
             distribucion = self.distribucion_combo.currentText()
-            media = float(self.media_input.text())
-            cantidad = int(self.cantidad_input.text())
+            prueba = self.prueba_combo.currentText()
             intervalos = int(self.intervalos_input.currentText())
+            usar_existente = self.usar_existente_checkbox.isChecked()
 
-            if distribucion in ["Normal", "Uniforme"]:
-                varianza_texto = self.varianza_input.text()
-                if varianza_texto == "":
-                    raise ValueError("La varianza no puede estar vacía.")
-                varianza = float(varianza_texto)
-                if varianza < 0:
-                    raise ValueError("La varianza debe ser mayor a cero.")
+            if usar_existente:
+                try:
+                    df = pd.read_csv("datos.csv", header=None)
+                    numeros = df[0].to_numpy()
+                    mensaje = f"Usando datos existentes de 'datos.csv' ({len(numeros)} valores)\n\n"
+                except FileNotFoundError:
+                    self.resultado_text.setText("⚠️ Archivo 'datos.csv' no encontrado.")
+                    return
             else:
-                varianza = None
+                media = float(self.media_input.text())
+                cantidad = int(self.cantidad_input.text())
+                varianza = float(self.varianza_input.text()) if distribucion in ["Normal", "Uniforme"] else None
 
-            if not (0 < cantidad <= 50000):
-                raise ValueError("La cantidad debe estar entre 1 y 50000.")
+                if not (0 < cantidad <= 50000):
+                    raise ValueError("La cantidad debe estar entre 1 y 50000.")
 
-            numeros = generar_numeros(distribucion, media, varianza, cantidad)
+                numeros = generar_numeros(distribucion, media, varianza, cantidad)
 
-            with open("datos.csv", mode='w', newline='') as file:
-                writer = csv.writer(file)
-                for numero in numeros:
-                    writer.writerow([numero])
+                with open("datos.csv", mode='w', newline='') as file:
+                    writer = csv.writer(file)
+                    for numero in numeros:
+                        writer.writerow([numero])
+                mensaje = f"Números generados ({distribucion}):\n{numeros[:10]} ...\n\n"
 
-            df = pd.read_csv("datos.csv", header=None)
             plt.close()
-            plt.hist(df[0], bins=intervalos, edgecolor='black')
-            plt.title('Histograma de los Números Generados')
+            plt.hist(numeros, bins=intervalos, edgecolor='black')
+            plt.title('Histograma de los Números')
             plt.xlabel('Valor')
             plt.ylabel('Frecuencia')
             plt.show()
 
-            mensaje = f"Números generados ({distribucion}):\n{numeros}\n\n"
-
-            # Prueba estadística
-            prueba = self.prueba_combo.currentText()
             mensaje += f"\nResultado de la prueba estadística seleccionada ({prueba}):\n"
 
             if prueba == "Chi-Cuadrado":
                 chi2, p_valor = prueba_chi_cuadrado(numeros, distribucion, intervalos)
                 mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                mensaje += "✅ Distribución aceptada (p > 0.05).\n" if p_valor > 0.05 else "❌ Distribución rechazada (p <= 0.05).\n"
+                mensaje += "✅ Distribución aceptada.\n" if p_valor > 0.05 else "❌ Distribución rechazada.\n"
 
             elif prueba == "Kolmogorov-Smirnov":
                 if distribucion == "Poisson":
@@ -222,7 +250,7 @@ class GeneradorApp(QWidget):
                 else:
                     stat, p_valor = prueba_kolmogorov_smirnov(numeros, distribucion)
                     mensaje += f"Estadístico D = {stat:.4f}, p-valor = {p_valor:.4f}\n"
-                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if p_valor > 0.05 else "❌ Distribución rechazada (p <= 0.05).\n"
+                    mensaje += "✅ Distribución aceptada.\n" if p_valor > 0.05 else "❌ Distribución rechazada.\n"
 
             elif prueba == "Anderson-Darling":
                 if distribucion == "Poisson":
@@ -232,10 +260,7 @@ class GeneradorApp(QWidget):
                     mensaje += f"Estadístico A² = {resultado.statistic:.4f}\n"
                     for sig, crit in zip(resultado.significance_level, resultado.critical_values):
                         mensaje += f"  Nivel {sig:.1f}% → valor crítico: {crit:.4f}\n"
-                    if resultado.statistic < resultado.critical_values[2]:  # 5%
-                        mensaje += "✅ Distribución aceptada al 5%.\n"
-                    else:
-                        mensaje += "❌ Distribución rechazada al 5%.\n"
+                    mensaje += "✅ Distribución aceptada al 5%.\n" if resultado.statistic < resultado.critical_values[2] else "❌ Distribución rechazada al 5%.\n"
 
             self.resultado_text.setText(mensaje)
 
@@ -243,8 +268,11 @@ class GeneradorApp(QWidget):
             self.resultado_text.setText(f"Error: {e}")
 
 
+# -------------------------- MAIN --------------------------
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ventana = GeneradorApp()
+    ventana.setMaximumWidth(600)
+    ventana.setMaximumHeight(1000)
     ventana.show()
     sys.exit(app.exec_())
