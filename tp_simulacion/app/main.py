@@ -18,8 +18,8 @@ class GeneradorApp(QWidget):
         self.setStyleSheet("""
     QWidget {
         background-color: #f0f2f5;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 14px;
+        font-family: 'Arial', sans-serif;
+        font-size: 17px;
     }
 
     QLabel {
@@ -148,21 +148,39 @@ class GeneradorApp(QWidget):
                     self.resultado_text.setText("⚠️ Archivo 'datos.csv' no encontrado. No se puede hacer la prueba.")
                     return
             else:
-                media = float(self.media_input.text())
-                cantidad = int(self.cantidad_input.text())
-
-                if distribucion in ["Normal", "Uniforme"]:
-                    varianza_texto = self.varianza_input.text()
-                    if varianza_texto == "":
-                        raise ValueError("La varianza no puede estar vacía.")
-                    varianza = float(varianza_texto)
-                    if varianza < 0:
-                        raise ValueError("La varianza debe ser mayor a cero.")
-                else:
+                
+                if distribucion not in ["Normal", "Uniforme"]:
+                    # varianza = None
+                    if self.media_input.text() == "":
+                            raise ValueError("Lambda no puede estar vacía.")
+                    else: 
+                        media = float(self.media_input.text())
+                        if media < 0:
+                            raise ValueError("Lambda debe ser mayor a cero.")
+                
+                else: 
+                    if self.media_input.text() == "":
+                            raise ValueError("La Media no puede estar vacía.")
+                    else: 
+                        media = float(self.media_input.text())
+                
+                if distribucion not in ["Normal", "Uniforme"]:  
                     varianza = None
+                else: 
+                    if self.varianza_input.text() == "":
+                            raise ValueError("La Varianza no puede estar vacía.")
+                    else: 
+                        varianza = float(self.varianza_input.text())
+                        if varianza < 0:
+                            raise ValueError("La Varianza debe ser mayor a cero.")
+                    
+                if self.cantidad_input.text() == "":
+                    raise ValueError("La Cantidad no puede estar vacía.")
+                else: 
+                    cantidad = int(self.cantidad_input.text())
 
                 if not (0 < cantidad <= 50000):
-                    raise ValueError("La cantidad debe estar entre 1 y 50000.")
+                    raise ValueError("La Cantidad debe estar entre 1 y 50000.")
 
                 numeros = generar_numeros(distribucion, media, varianza, cantidad)
 
