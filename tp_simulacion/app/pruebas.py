@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import chisquare, norm, expon, poisson
+from scipy.stats import chisquare, norm, expon, poisson, kstest
 
 # Funciones para pruebas estadisticas 
 
@@ -54,15 +54,3 @@ def prueba_kolmogorov_smirnov(numeros, distribucion):
         raise ValueError("KS no soporta esta distribución.")
     return stat, p_valor
 
-
-# Funcion para prueba Anderson-Darling
-def prueba_anderson_darling(numeros, distribucion):
-    if distribucion == "Normal":
-        resultado = anderson(numeros, dist='norm')
-    elif distribucion == "Exponencial":
-        resultado = anderson(numeros, dist='expon')
-    elif distribucion == "Uniforme":
-        resultado = anderson(numeros, dist='uniform')
-    else:
-        raise ValueError("Anderson-Darling no soporta esta distribución.")
-    return resultado

@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit, QComboBox, QTextEdit, QCheckBox
+from PyQt5 import  QtGui
 import sys
 import csv
 import pandas as pd
@@ -11,57 +12,232 @@ from pruebas import prueba_chi_cuadrado, prueba_kolmogorov_smirnov
 class GeneradorApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Generador de Números Aleatorios")
+        self.setWindowTitle("Simulador Numérico")
         self.setup_ui()
-
+        self.setWindowIcon(QtGui.QIcon("tp_simulacion/assets/imgs/calculator.png"))
+        
     def setup_ui(self):
         self.setStyleSheet("""
     QWidget {
-        background-color: #f0f2f5;
-        font-family: 'Arial', sans-serif;
-        font-size: 17px;
-    }
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-size: 18px;
+    color: #212529;
+}
 
-    QLabel {
-        color: #333;
-        margin-top: 5px;
-    }
+QLabel {
+    color: #495057;
+    margin-top: 6px;
+    font-weight: 500;
+    font-size: 19px;
+}
 
-    QLineEdit, QComboBox, QTextEdit {
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 5px 8px;
-    }
+QLineEdit, QComboBox, QTextEdit {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 18px;
+    selection-background-color: #74b9ff;
+}
 
-    QComboBox QAbstractItemView {
-        selection-background-color: #0078d7;
-    }
+QLineEdit:focus, QComboBox:focus, QTextEdit:focus {
+    border: 1px solid #5c9ded;
+    outline: none;
+}
 
-    QPushButton {
-        background-color: #0078d7;
-        color: white;
-        border-radius: 6px;
-        padding: 8px 12px;
-    }
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    selection-background-color: #5c9ded;
+    selection-color: white;
+    font-size: 18px;
+}
 
-    QPushButton:hover {
-        background-color: #005fa1;
-    }
+QPushButton {
+    background-color: #5c9ded;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-weight: bold;
+    font-size: 19px;
+}
 
-    QPushButton:pressed {
-        background-color: #004a80;
-    }
+QPushButton:hover {
+    background-color: #468ce0;
+}
 
-    QCheckBox {
-        padding: 5px;
-    }
+QPushButton:pressed {
+    background-color: #3a76c5;
+}
 
-    QTextEdit {
-        border: 1px solid #aaa;
-        background-color: #ffffff;
-        border-radius: 6px;
-    }
+QCheckBox {
+    padding: 8px;
+    font-size: 18px;
+}
+
+QTextEdit {
+    border: 1px solid #aaa;
+    background-color: #ffffff;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: #e9ecef;
+    width: 14px;
+    margin: 2px 0 2px 0;
+    border-radius: 7px;
+}
+
+QScrollBar::handle:vertical {
+    background: #5c9ded;
+    min-height: 30px;
+    border-radius: 7px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #468ce0;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+
+QScrollBar:horizontal {
+    border: none;
+    background: #e9ecef;
+    height: 14px;
+    margin: 0 2px 0 2px;
+    border-radius: 7px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #5c9ded;
+    min-width: 30px;
+    border-radius: 7px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #468ce0;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+QComboBox {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 18px;
+    color: #212529;
+}
+
+QComboBox:hover {
+    border: 1px solid #5c9ded;
+}
+
+QComboBox:focus {
+    border: 1px solid #5c9ded;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 30px;
+    border-left: 1px solid #ced4da;
+    background-color: #e9ecef;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+QComboBox::down-arrow {
+    image: url(tp_simulacion/assets/icons/arrow.svg); 
+    width: 14px;
+    height: 14px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    selection-background-color: #5c9ded;
+    selection-color: white;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+QComboBox QScrollBar:vertical {
+    border: none;
+    background: #e9ecef;
+    width: 14px;
+    margin: 2px 0 2px 0;
+    border-radius: 7px;
+}
+
+QComboBox QScrollBar::handle:vertical {
+    background: #5c9ded;
+    min-height: 30px;
+    border-radius: 7px;
+}
+
+QComboBox QScrollBar::handle:vertical:hover {
+    background: #468ce0;
+}
+
+QComboBox QScrollBar::add-line:vertical,
+QComboBox QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QComboBox QScrollBar::add-page:vertical,
+QComboBox QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QCheckBox {
+    spacing: 10px;
+    font-size: 18px;
+    padding: 6px;
+    color: #212529;
+}
+
+QCheckBox::indicator {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #ced4da;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #5c9ded;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #5c9ded;
+    border: 2px solid #5c9ded;
+    image: url(tp_simulacion/assets/icons/checkbox.svg); 
+}
+
+QCheckBox::indicator:unchecked {
+    background-color: #ffffff;
+}
+
+
 """)
 
         layout = QVBoxLayout()
@@ -87,11 +263,11 @@ class GeneradorApp(QWidget):
 
         self.prueba_label = QLabel("Prueba estadística:")
         self.prueba_combo = QComboBox()
-        self.prueba_combo.addItems(["Ninguna", "Chi-Cuadrado", "Kolmogorov-Smirnov", "Anderson-Darling"])
+        self.prueba_combo.addItems(["Ninguna", "Chi-Cuadrado", "Kolmogorov-Smirnov"])
 
-        self.usar_existente_checkbox = QCheckBox("Usar datos existentes del archivo CSV (sin generar nuevos)")
+        self.usar_existente_checkbox = QCheckBox("Usar datos anteriores.")
         
-        self.generar_btn = QPushButton("Generar")
+        self.generar_btn = QPushButton("GENERAR")
         self.generar_btn.clicked.connect(self.generar)
 
         self.resultado_text = QTextEdit()
@@ -129,7 +305,6 @@ class GeneradorApp(QWidget):
         self.prueba_combo.addItem("Ninguna")
         if texto_distribucion != "Poisson":
             self.prueba_combo.addItem("Kolmogorov-Smirnov")
-            self.prueba_combo.addItem("Anderson-Darling")
         self.prueba_combo.addItem("Chi-Cuadrado")
 
     def generar(self):
@@ -215,19 +390,6 @@ class GeneradorApp(QWidget):
                     mensaje += f"Estadístico D = {stat:.4f}, p-valor = {p_valor:.4f}\n"
                     mensaje += "✅ Distribución aceptada (p > 0.05).\n" if p_valor > 0.05 else "❌ Distribución rechazada (p <= 0.05).\n"
 
-            elif prueba == "Anderson-Darling":
-                if distribucion == "Poisson":
-                    mensaje += "❌ Anderson-Darling no soporta distribuciones discretas como Poisson.\n"
-                else:
-                    resultado = prueba_anderson_darling(numeros, distribucion)
-                    mensaje += f"Estadístico A² = {resultado.statistic:.4f}\n"
-                    for sig, crit in zip(resultado.significance_level, resultado.critical_values):
-                        mensaje += f"  Nivel {sig:.1f}% → valor crítico: {crit:.4f}\n"
-                    if resultado.statistic < resultado.critical_values[2]:  # 5%
-                        mensaje += "✅ Distribución aceptada al 5%.\n"
-                    else:
-                        mensaje += "❌ Distribución rechazada al 5%.\n"
-
             self.resultado_text.setText(mensaje)
 
         except Exception as e:
@@ -237,7 +399,9 @@ class GeneradorApp(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ventana = GeneradorApp()
+    ventana.setMinimumWidth(500)
     ventana.setMaximumWidth(500)
+    ventana.setMinimumHeight(900)
     ventana.setMaximumHeight(900)
     ventana.show()
     sys.exit(app.exec_())
