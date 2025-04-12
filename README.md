@@ -1,24 +1,23 @@
-# 📊 Simulador de Variables Aleatorias (con PyQt)
+# 📊 Random Variable Simulator (with PyQt)
 
-Este proyecto permite generar valores de variables aleatorias según una distribución específica, realizar pruebas estadísticas (como Chi-Cuadrado) y visualizar los resultados mediante una interfaz gráfica construida con PyQt5.
+This project allows you to generate random variable values ​​according to a specific distribution, perform statistical tests (such as Chi-Square), and visualize the results using a graphical interface built with PyQt5.
 
 ---
 
-## 📚 Documentación
+## 📚 Documentation
 
-Puedes consultar la documentación oficial de Qt para Python (PyQt) aquí:  
+You can consult the official Qt for Python (PyQt) documentation here: 
 🔗 [https://doc.qt.io/qtforpython-6/](https://doc.qt.io/qtforpython-6/)
 
 ---
 
 ## 📷 Photos
 
-![Photo 1](tp_simulacion/assets/imgs/presentacion.png)
+![Photo 1](imgs/presentacion.png)
 
-## 📦 Instalación de Dependencias
+## 📦 Dependency Installation
 
-Asegúrate de tener `pip` actualizado, luego ejecuta:
+Make sure you have `pip` updated, then run:
 
 ```bash
 pip install -r requirements.txt
-
