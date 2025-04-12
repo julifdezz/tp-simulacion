@@ -11,6 +11,8 @@ from scipy.stats import chisquare, norm, expon, poisson, kstest, anderson
 
 
 # Función para generar valores de variables aleatorias
+# Los parametros que recibe son los siguientes: Distribución (String), Media (Float), Varianza (Float), Cantidad (Int).
+# Para cada tipo de distribución (Normal, Poisson, Exponencial, Uniforme) se aplican las formulas necesarias para la obtención de los números aleatorios.
 def generar_numeros(distribucion, media, varianza, cantidad):
     if distribucion == "Normal":
         sigma = np.sqrt(varianza)
@@ -31,6 +33,7 @@ def generar_numeros(distribucion, media, varianza, cantidad):
 
 
 # Prueba Chi-Cuadrado
+# Los parametros de la función son los numeros aleatorios anteriormente generados, el tipo de distribución y los bins (rango del ancho del histograma).
 def prueba_chi_cuadrado(numeros, distribucion, bins):
     frecuencias_observadas, limites = np.histogram(numeros, bins=bins)
     total = len(numeros)
@@ -66,6 +69,7 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
 
 
 # Prueba Kolmogorov–Smirnov
+# Al igual que la prueba de Chi-Cuadrado, recibe como parametroslos numeros aleatorios, y el tipo de distribución a utilizar.
 def prueba_kolmogorov_smirnov(numeros, distribucion):
     if distribucion == "Normal":
         mu, sigma = np.mean(numeros), np.std(numeros)
@@ -82,6 +86,7 @@ def prueba_kolmogorov_smirnov(numeros, distribucion):
 
 
 # Prueba Anderson-Darling
+# Al igual que Chi-Cuadrado y KS, recibe como parametros los numeros aletorios y el tipo de distribución.
 def prueba_anderson_darling(numeros, distribucion):
     if distribucion == "Normal":
         resultado = anderson(numeros, dist='norm')
