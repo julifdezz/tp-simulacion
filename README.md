@@ -13,7 +13,7 @@ You can consult the official Qt for Python (PyQt) documentation here:
 
 ## 📷 Photos
 
-![Photo 1](imgs/presentacion.png)
+![Photo 1](assets/imgs/presentacion.png)
 
 ## 📦 Dependency Installation
 
