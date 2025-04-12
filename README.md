@@ -17,3 +17,7 @@ Asegúrate de tener `pip` actualizado, luego ejecuta:
 
 ```bash
 pip install -r requirements.txt
+
+## 📷 Photos
+
+![Photo 1](imgs/presentacion.png)
