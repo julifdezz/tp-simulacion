@@ -20,4 +20,4 @@ pip install -r requirements.txt
 
 ## 📷 Photos
 
-![Photo 1](imgs/presentacion.png)
+![Photo 1](tp_simulacion/assets/imgs/presentacion.png)
