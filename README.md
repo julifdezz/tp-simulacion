@@ -2,6 +2,10 @@
 
 Este proyecto permite generar valores de variables aleatorias según una distribución específica, realizar pruebas estadísticas (como Chi-Cuadrado) y visualizar los resultados mediante una interfaz gráfica construida con PyQt5.
 
+## 📷 Photos
+
+![Photo 1](tp_simulacion/assets/imgs/presentacion.png)
+
 ---
 
 ## 📚 Documentación
@@ -18,6 +22,3 @@ Asegúrate de tener `pip` actualizado, luego ejecuta:
 ```bash
 pip install -r requirements.txt
 
-## 📷 Photos
-
-![Photo 1](tp_simulacion/assets/imgs/presentacion.png)
