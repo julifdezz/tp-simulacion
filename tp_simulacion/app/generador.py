@@ -1,20 +1,17 @@
 import numpy as np
 
 # Funcion para generar variables aleatorias
-def generar_numeros(distribucion, media, varianza, cantidad):
+def generar_numeros(distribucion, n1, n2, cantidad):
     if distribucion == "Normal":
-        sigma = np.sqrt(varianza)
-        return np.random.normal(loc=media, scale=sigma, size=cantidad)
+        sigma = np.sqrt(n2)
+        return np.random.normal(loc=n1, scale=sigma, size=cantidad)
     elif distribucion == "Poisson":
-        lam = media
+        lam = n1
         return np.random.poisson(lam=lam, size=cantidad)
     elif distribucion == "Exponencial":
-        lam = 1 / media
+        lam = 1 / n1
         return np.random.exponential(scale=1/lam, size=cantidad)
     elif distribucion == "Uniforme":
-        rango = np.sqrt(12 * varianza)
-        a = media - rango / 2
-        b = media + rango / 2
-        return np.random.uniform(low=a, high=b, size=cantidad)
+        return np.random.uniform(low=n1, high=n2, size=cantidad)
     else:
         raise ValueError("Distribución no soportada.")

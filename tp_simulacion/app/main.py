@@ -8,7 +8,6 @@ from generador import generar_numeros
 from pruebas import prueba_chi_cuadrado, prueba_kolmogorov_smirnov
 from styles.styles import style
 
-
 # Interfaz con PyQt5
 class GeneradorApp(QWidget):
     def __init__(self):
@@ -27,11 +26,11 @@ class GeneradorApp(QWidget):
         self.distribucion_combo.addItems(["Normal", "Poisson", "Exponencial", "Uniforme"])
         self.distribucion_combo.currentTextChanged.connect(self.actualizar_campos)
 
-        self.media_label = QLabel("Media:")
-        self.media_input = QLineEdit()
+        self.param1_label = QLabel("Media:")
+        self.param1_input = QLineEdit()
 
-        self.varianza_label = QLabel("Varianza:")
-        self.varianza_input = QLineEdit()
+        self.param2_label = QLabel("Varianza:")
+        self.param2_input = QLineEdit()
 
         self.cantidad_label = QLabel("Cantidad de valores:")
         self.cantidad_input = QLineEdit()
@@ -55,10 +54,10 @@ class GeneradorApp(QWidget):
 
         layout.addWidget(self.distribucion_label)
         layout.addWidget(self.distribucion_combo)
-        layout.addWidget(self.media_label)
-        layout.addWidget(self.media_input)
-        layout.addWidget(self.varianza_label)
-        layout.addWidget(self.varianza_input)
+        layout.addWidget(self.param1_label)
+        layout.addWidget(self.param1_input)
+        layout.addWidget(self.param2_label)
+        layout.addWidget(self.param2_input)
         layout.addWidget(self.cantidad_label)
         layout.addWidget(self.cantidad_input)
         layout.addWidget(self.intervalos_label)
@@ -71,16 +70,26 @@ class GeneradorApp(QWidget):
 
         self.setLayout(layout)
 
-    def actualizar_campos(self, texto_distribucion):
+    def actualizar_campos(self, texto_distribucion):    
         if texto_distribucion in ["Poisson", "Exponencial"]:
-            self.varianza_label.hide()
-            self.varianza_input.hide()
-            self.media_label.setText("Lambda:")
+            self.param2_label.hide()
+            self.param2_input.hide()
+            self.param1_label.setText("Lambda:")
         else:
-            self.varianza_label.show()
-            self.varianza_input.show()
-            self.media_label.setText("Media:")
+            self.param2_label.show()
+            self.param2_input.show()
+            self.param1_label.setText("Media:")
 
+        if texto_distribucion == "Uniforme":
+            self.param1_label.setText("Límite inferior (a):")
+            self.param2_label.setText("Límite superior (b):")
+            self.param2_label.show()
+            self.param2_input.show()
+            self.param1_input.setReadOnly(False)
+            self.param2_input.setReadOnly(False)
+            self.param1_input.setStyleSheet("")
+            self.param2_input.setStyleSheet("")
+        
         self.prueba_combo.clear()
         self.prueba_combo.addItem("Ninguna")
         if texto_distribucion != "Poisson":
@@ -96,7 +105,7 @@ class GeneradorApp(QWidget):
 
             if usar_existente:
                 try:
-                    df = pd.read_csv("tp_simulacion/app/data/datos.csv", header=None)
+                    df = pd.read_csv("/tp_simulacion/app/data/datos.csv", header=None)
                     numeros = df[0].to_numpy()
                     mensaje = f"🟦 Usando datos existentes de 'datos.csv' ({len(numeros)} valores)\n\n"
                 except FileNotFoundError:
@@ -106,27 +115,33 @@ class GeneradorApp(QWidget):
                 
                 if distribucion not in ["Normal", "Uniforme"]:
                     # varianza = None
-                    if self.media_input.text() == "":
+                    if self.param1_input.text() == "":
                             raise ValueError("Lambda no puede estar vacía.")
                     else: 
-                        media = float(self.media_input.text())
-                        if media < 0:
+                        n1 = float(self.param1_input.text())
+                        if n1 < 0:
                             raise ValueError("Lambda debe ser mayor a cero.")
                 
                 else: 
-                    if self.media_input.text() == "":
+                    if self.param1_input.text() == "":
                             raise ValueError("La Media no puede estar vacía.")
                     else: 
-                        media = float(self.media_input.text())
+                        n1 = float(self.param1_input.text())
                 
+                if distribucion == "Uniforme":
+                    n1 = float(self.param1_input.text()) # Media seria nuestro Limite Inferior
+                    n2 = float(self.param2_input.text())  # Varianza seria nuestro Limite Superior.
+                    if n1 >= n2:
+                        raise ValueError("El límite inferior debe ser menor que el superior.")
+
                 if distribucion not in ["Normal", "Uniforme"]:  
-                    varianza = None
+                    n2 = None
                 else: 
-                    if self.varianza_input.text() == "":
+                    if self.param2_input.text() == "":
                             raise ValueError("La Varianza no puede estar vacía.")
                     else: 
-                        varianza = float(self.varianza_input.text())
-                        if varianza < 0:
+                        n2 = float(self.param2_input.text())
+                        if n2 < 0:
                             raise ValueError("La Varianza debe ser mayor a cero.")
                     
                 if self.cantidad_input.text() == "":
@@ -137,7 +152,7 @@ class GeneradorApp(QWidget):
                 if not (0 < cantidad <= 50000):
                     raise ValueError("La Cantidad debe estar entre 1 y 50000.")
 
-                numeros = generar_numeros(distribucion, media, varianza, cantidad)
+                numeros = generar_numeros(distribucion, n1, n2, cantidad)
 
                 with open("tp_simulacion/app/data/datos.csv", mode='w', newline='') as file:
                     writer = csv.writer(file)
