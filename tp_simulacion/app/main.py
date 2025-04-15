@@ -8,6 +8,8 @@ from generador import generar_numeros
 from pruebas import prueba_chi_cuadrado, prueba_kolmogorov_smirnov
 from styles.styles import style
 
+RUTA = "tp_simulacion/app/data/datos.csv"
+
 # Interfaz con PyQt5
 class GeneradorApp(QWidget):
     def __init__(self):
@@ -70,7 +72,12 @@ class GeneradorApp(QWidget):
 
         self.setLayout(layout)
 
-    def actualizar_campos(self, texto_distribucion):    
+    def actualizar_campos(self, texto_distribucion):   
+        if texto_distribucion == "Normal":
+            self.param2_label.setText("Varianza:")
+            self.param2_label.show()
+            self.param2_input.show()
+         
         if texto_distribucion in ["Poisson", "Exponencial"]:
             self.param2_label.hide()
             self.param2_input.hide()
@@ -85,8 +92,6 @@ class GeneradorApp(QWidget):
             self.param2_label.setText("Límite superior (b):")
             self.param2_label.show()
             self.param2_input.show()
-            self.param1_input.setReadOnly(False)
-            self.param2_input.setReadOnly(False)
             self.param1_input.setStyleSheet("")
             self.param2_input.setStyleSheet("")
         
@@ -105,7 +110,7 @@ class GeneradorApp(QWidget):
 
             if usar_existente:
                 try:
-                    df = pd.read_csv("/tp_simulacion/app/data/datos.csv", header=None)
+                    df = pd.read_csv(RUTA, header=None)
                     numeros = df[0].to_numpy()
                     mensaje = f"🟦 Usando datos existentes de 'datos.csv' ({len(numeros)} valores)\n\n"
                 except FileNotFoundError:
@@ -124,7 +129,9 @@ class GeneradorApp(QWidget):
                 
                 else: 
                     if self.param1_input.text() == "":
-                            raise ValueError("La Media no puede estar vacía.")
+                            raise ValueError("El primer parametro no puede estar vacio.")
+                    elif self.param2_input.text() == "":
+                         raise ValueError("El segundo parametro no puede estar vacio.")
                     else: 
                         n1 = float(self.param1_input.text())
                 
@@ -153,8 +160,8 @@ class GeneradorApp(QWidget):
                     raise ValueError("La Cantidad debe estar entre 1 y 50000.")
 
                 numeros = generar_numeros(distribucion, n1, n2, cantidad)
-
-                with open("tp_simulacion/app/data/datos.csv", mode='w', newline='') as file:
+                
+                with open(RUTA, mode='w', newline='') as file:
                     writer = csv.writer(file)
                     for numero in numeros:
                         writer.writerow([numero])
