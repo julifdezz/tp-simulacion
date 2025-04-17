@@ -9,6 +9,8 @@ from pruebas import prueba_chi_cuadrado, prueba_kolmogorov_smirnov
 from styles.styles import style
 
 RUTA = "tp_simulacion/app/data/datos.csv"
+# Estos son los valores de la tabla para los intervalos [10, 15, 20, 25] con alpha = 0,05
+CHI_VALUES = [16.9190, 23.6848, 30.1435, 36.4150]
 
 # Interfaz con PyQt5
 class GeneradorApp(QWidget):
@@ -107,6 +109,7 @@ class GeneradorApp(QWidget):
             prueba = self.prueba_combo.currentText()
             intervalos = int(self.intervalos_input.currentText())
             usar_existente = self.usar_existente_checkbox.isChecked()
+            print("Intervalo q usar el negro este: ", intervalos)
 
             if usar_existente:
                 try:
@@ -183,13 +186,26 @@ class GeneradorApp(QWidget):
             plt.tight_layout()
             plt.show()
 
-            # Prueba estadística
+            # Mostrar Tabla de Frecuencias uwu -> Falta hacer.
+
+            # Prueba estadística 
             mensaje += f"\n🟦 Resultado de la prueba estadística seleccionada ({prueba}):\n"
 
             if prueba == "Chi-Cuadrado":
                 chi2, p_valor = prueba_chi_cuadrado(numeros, distribucion, intervalos)
-                mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                mensaje += "✅ Distribución aceptada (p > 0.05).\n" if p_valor > 0.05 else "❌ Distribución rechazada (p <= 0.05).\n"
+                if intervalos == 10:
+                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[0] else "❌ Distribución rechazada (p <= 0.05).\n"
+                elif intervalos == 15:
+                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[1] else "❌ Distribución rechazada (p <= 0.05).\n"
+                elif intervalos == 20:
+                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[2] else "❌ Distribución rechazada (p <= 0.05).\n"
+                elif intervalos == 25:
+                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[3] else "❌ Distribución rechazada (p <= 0.05).\n"
+
 
             elif prueba == "Kolmogorov-Smirnov":
                 if distribucion == "Poisson":
@@ -208,9 +224,9 @@ class GeneradorApp(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ventana = GeneradorApp()
-    ventana.setMinimumWidth(500)
-    ventana.setMaximumWidth(500)
-    ventana.setMinimumHeight(900)
-    ventana.setMaximumHeight(900)
+    #ventana.setMinimumWidth(500)
+    #ventana.setMaximumWidth(500)
+    #ventana.setMinimumHeight(650)
+    #ventana.setMaximumHeight(650)
     ventana.show()
     sys.exit(app.exec_())
