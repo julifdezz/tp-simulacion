@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import chisquare, norm, expon, poisson, kstest
+from scipy.stats import chisquare, norm, expon, poisson, kstest, uniform
 
 # Funciones para pruebas estadisticas 
 
@@ -11,6 +11,7 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
 
     if distribucion == "Uniforme":
         frecuencias_esperadas = [total / bins] * bins
+
     else:
         cdf = None
         if distribucion == "Normal":
@@ -35,7 +36,10 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
             factor = suma_obs / suma_exp
             frecuencias_esperadas = [f * factor for f in frecuencias_esperadas]
 
+    
     chi2, p_valor = chisquare(f_obs=frecuencias_observadas, f_exp=frecuencias_esperadas)
+    print(f"p valor{p_valor}") # 
+    print(f"chi{chi2}")        #
     return chi2, p_valor
 
 

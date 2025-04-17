@@ -148,7 +148,7 @@ class GeneradorApp(QWidget):
                             raise ValueError("La Varianza no puede estar vacía.")
                     else: 
                         n2 = float(self.param2_input.text())
-                        if n2 < 0:
+                        if (n2 < 0 and distribucion == "Normal"):
                             raise ValueError("La Varianza debe ser mayor a cero.")
                     
                 if self.cantidad_input.text() == "":
