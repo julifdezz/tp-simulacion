@@ -2,7 +2,7 @@ style = """
 QWidget {
 background-color: #F1F3F9;
 font-family: 'Segoe UI', 'Arial', sans-serif;
-font-size: 18px;
+font-size: 10px;
 color: #212529;
 }
 
@@ -18,7 +18,7 @@ QLineEdit, QComboBox, QTextEdit {
     border: 1px solid #ced4da;
     border-radius: 10px;
     padding: 10px 14px;
-    font-size: 18px;
+    font-size: 10px;
     selection-background-color: #74b9ff;
 }
 
@@ -32,7 +32,7 @@ QComboBox QAbstractItemView {
     border: 1px solid #ced4da;
     selection-background-color: #5c9ded;
     selection-color: white;
-    font-size: 18px;
+    font-size: 10px;
 }
 
 QPushButton {
@@ -55,14 +55,14 @@ QPushButton:pressed {
 
 QCheckBox {
     padding: 8px;
-    font-size: 18px;
+    font-size: 10px;
 }
 
 QTextEdit {
     border: 1px solid #aaa;
     background-color: #ffffff;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 10px;
 }
 
 QScrollBar:vertical {
@@ -123,7 +123,7 @@ QComboBox {
     border: 1px solid #ced4da;
     border-radius: 10px;
     padding: 10px 14px;
-    font-size: 18px;
+    font-size: 10px;
     color: #212529;
 }
 
@@ -158,7 +158,7 @@ QComboBox QAbstractItemView {
     selection-background-color: #5c9ded;
     selection-color: white;
     border-radius: 8px;
-    font-size: 18px;
+    font-size: 10px;
 }
 
 QComboBox QScrollBar:vertical {
@@ -191,7 +191,7 @@ QComboBox QScrollBar::sub-page:vertical {
 
 QCheckBox {
     spacing: 10px;
-    font-size: 18px;
+    font-size: 10px;
     padding: 6px;
     color: #212529;
 }

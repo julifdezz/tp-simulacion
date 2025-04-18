@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit, QComboBox, QTextEdit, QCheckBox
 from PyQt5 import  QtGui
+import numpy as np
 import sys
 import csv
 import pandas as pd
@@ -67,7 +68,7 @@ class GeneradorApp(QWidget):
         layout.addWidget(self.intervalos_label)
         layout.addWidget(self.intervalos_input)
         layout.addWidget(self.prueba_label)
-        layout.addWidget(self.prueba_combo)
+        layout.addWidget(self.prueba_combo) 
         layout.addWidget(self.usar_existente_checkbox)
         layout.addWidget(self.generar_btn)
         layout.addWidget(self.resultado_text)
@@ -193,19 +194,23 @@ class GeneradorApp(QWidget):
 
             if prueba == "Chi-Cuadrado":
                 chi2, p_valor = prueba_chi_cuadrado(numeros, distribucion, intervalos)
-                if intervalos == 10:
-                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[0] else "❌ Distribución rechazada (p <= 0.05).\n"
-                elif intervalos == 15:
-                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[1] else "❌ Distribución rechazada (p <= 0.05).\n"
-                elif intervalos == 20:
-                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[2] else "❌ Distribución rechazada (p <= 0.05).\n"
-                elif intervalos == 25:
-                    mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[3] else "❌ Distribución rechazada (p <= 0.05).\n"
 
+                if distribucion == "Poisson" and (np.isnan(chi2) or np.isinf(chi2)):
+                    mensaje += "❌ La prueba de Chi-Cuadrado es inválida. Por lo cual se rechaza la Distribución.\n"
+                    mensaje += f"⚠️ Esto se debe a lo siguiente: \n➡️ Frecuencia Esperada nula, Frecuencia Esperada y Observada Nulas o Frecuencia Esperada cercana a 0.\n"
+                else:
+                    if intervalos == 10:
+                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[0] else "❌ Distribución rechazada (p <= 0.05).\n"
+                    elif intervalos == 15:
+                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[1] else "❌ Distribución rechazada (p <= 0.05).\n"
+                    elif intervalos == 20:
+                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[2] else "❌ Distribución rechazada (p <= 0.05).\n"
+                    elif intervalos == 25:
+                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
+                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[3] else "❌ Distribución rechazada (p <= 0.05).\n"
 
             elif prueba == "Kolmogorov-Smirnov":
                 if distribucion == "Poisson":

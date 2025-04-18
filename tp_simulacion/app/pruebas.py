@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.stats import chisquare, norm, expon, poisson, kstest, uniform
-
-# Funciones para pruebas estadisticas 
-
+import pandas as pd
 
 # Funcion para prueba Chi-Cuadrado
 def prueba_chi_cuadrado(numeros, distribucion, bins):
@@ -11,7 +9,6 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
 
     if distribucion == "Uniforme":
         frecuencias_esperadas = [total / bins] * bins
-
     else:
         cdf = None
         if distribucion == "Normal":
@@ -35,13 +32,9 @@ def prueba_chi_cuadrado(numeros, distribucion, bins):
         if not np.isclose(suma_obs, suma_exp):
             factor = suma_obs / suma_exp
             frecuencias_esperadas = [f * factor for f in frecuencias_esperadas]
-
-    
-    chi2, p_valor = chisquare(f_obs=frecuencias_observadas, f_exp=frecuencias_esperadas)
-    print(f"p valor{p_valor}") # 
-    print(f"chi{chi2}")        #
+        
+    chi2, p_valor = chisquare(f_obs=frecuencias_observadas, f_exp=frecuencias_esperadas)    
     return chi2, p_valor
-
 
 # Funcion para prueba Kolmogorov–Smirnov
 def prueba_kolmogorov_smirnov(numeros, distribucion):
@@ -57,4 +50,3 @@ def prueba_kolmogorov_smirnov(numeros, distribucion):
     else:
         raise ValueError("KS no soporta esta distribución.")
     return stat, p_valor
-
