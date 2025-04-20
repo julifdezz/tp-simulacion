@@ -6,7 +6,8 @@ import csv
 import pandas as pd
 import matplotlib.pyplot as plt
 from generador import generar_numeros
-from pruebas import prueba_chi_cuadrado, prueba_kolmogorov_smirnov
+from utilities import tabla_frecuencias
+from pruebas import prueba_chi_cuadrado
 from styles.styles import style
 
 RUTA = "tp_simulacion/app/data/datos.csv"
@@ -47,7 +48,7 @@ class GeneradorApp(QWidget):
 
         self.prueba_label = QLabel("Prueba estadística:")
         self.prueba_combo = QComboBox()
-        self.prueba_combo.addItems(["Ninguna", "Chi-Cuadrado", "Kolmogorov-Smirnov"])
+        self.prueba_combo.addItems(["Ninguna", "Chi-Cuadrado"])
 
         self.usar_existente_checkbox = QCheckBox("Usar datos anteriores")
         
@@ -100,8 +101,6 @@ class GeneradorApp(QWidget):
         
         self.prueba_combo.clear()
         self.prueba_combo.addItem("Ninguna")
-        if texto_distribucion != "Poisson":
-            self.prueba_combo.addItem("Kolmogorov-Smirnov")
         self.prueba_combo.addItem("Chi-Cuadrado")
 
     def generar(self):
@@ -187,41 +186,24 @@ class GeneradorApp(QWidget):
             plt.tight_layout()
             plt.show()
 
-            # Mostrar Tabla de Frecuencias uwu -> Falta hacer.
-
-            # Prueba estadística 
-            mensaje += f"\n🟦 Resultado de la prueba estadística seleccionada ({prueba}):\n"
-
             if prueba == "Chi-Cuadrado":
-                chi2, p_valor = prueba_chi_cuadrado(numeros, distribucion, intervalos)
-
-                if distribucion == "Poisson" and (np.isnan(chi2) or np.isinf(chi2)):
-                    mensaje += "❌ La prueba de Chi-Cuadrado es inválida. Por lo cual se rechaza la Distribución.\n"
-                    mensaje += f"⚠️ Esto se debe a lo siguiente: \n➡️ Frecuencia Esperada nula, Frecuencia Esperada y Observada Nulas o Frecuencia Esperada cercana a 0.\n"
-                else:
-                    if intervalos == 10:
-                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[0] else "❌ Distribución rechazada (p <= 0.05).\n"
-                    elif intervalos == 15:
-                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[1] else "❌ Distribución rechazada (p <= 0.05).\n"
-                    elif intervalos == 20:
-                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[2] else "❌ Distribución rechazada (p <= 0.05).\n"
-                    elif intervalos == 25:
-                        mensaje += f"Chi² = {chi2:.4f}, p-valor = {p_valor:.4f}\n"
-                        mensaje += "✅ Distribución aceptada (p > 0.05).\n" if chi2 < CHI_VALUES[3] else "❌ Distribución rechazada (p <= 0.05).\n"
-
-            elif prueba == "Kolmogorov-Smirnov":
-                if distribucion == "Poisson":
-                    mensaje += "❌ KS no soporta distribuciones discretas como Poisson.\n"
-                else:
-                    stat, p_valor = prueba_kolmogorov_smirnov(numeros, distribucion)
-                    mensaje += f"Estadístico D = {stat:.4f}, p-valor = {p_valor:.4f}\n"
-                    mensaje += "✅ Distribución aceptada (p > 0.05).\n" if p_valor > 0.05 else "❌ Distribución rechazada (p <= 0.05).\n"
-
+                chi2, lim_inf, lim_sup, vec_fo, vec_fe = prueba_chi_cuadrado(numeros, distribucion, intervalos)
+                mensaje += f"🟦 Tabla de frecuencias:\n"
+                tabla = tabla_frecuencias(lim_inf, lim_sup, vec_fo, vec_fe)
+                mensaje += f"\n{tabla.to_string(index=False)}\n"
+                mensaje += f"\n🟦 Resultado de la prueba estadística seleccionada ({prueba}):\n"
+                mensaje += f"\n🔢 Valor total Chi² calculado: {chi2:.4f}\n"
+                
+                if intervalos == 10:
+                    mensaje += f"✅ Distribución aceptada: Chi² Calculado: {chi2:.4f} y Chi² Tabla: {CHI_VALUES[0]}" if chi2 < CHI_VALUES[0] else f"❌ Distribución rechazada - Chi² Tabla: {CHI_VALUES[0]} \n🤔 Se rechaza debido a que Chi calculado es mayor a Chi tabla"
+                elif intervalos == 15:
+                    mensaje += f"✅ Distribución aceptada: Chi² Calculado: {chi2:.4f} y Chi² Tabla: {CHI_VALUES[1]}" if chi2 < CHI_VALUES[1] else f"❌ Distribución rechazada - Chi² Tabla: {CHI_VALUES[1]} \n🤔 Se rechaza debido a que Chi calculado es mayor a Chi tabla"
+                elif intervalos == 20:
+                    mensaje += f"✅ Distribución aceptada: Chi² Calculado: {chi2:.4f} y Chi² Tabla: {CHI_VALUES[2]}" if chi2 < CHI_VALUES[2] else f"❌ Distribución rechazada - Chi² Tabla: {CHI_VALUES[2]} \n🤔 Se rechaza debido a que Chi calculado es mayor a Chi tabla"
+                elif intervalos == 25:
+                    mensaje += f"✅ Distribución aceptada: Chi² Calculado: {chi2:.4f} y Chi² Tabla: {CHI_VALUES[3]}" if chi2 < CHI_VALUES[3] else f"❌ Distribución rechazada - Chi² Tabla: {CHI_VALUES[3]} \n🤔 Se rechaza debido a que Chi calculado es mayor a Chi tabla"
+                
             self.resultado_text.setText(mensaje)
-
         except Exception as e:
             self.resultado_text.setText(f"⚠️ {e}")
 
