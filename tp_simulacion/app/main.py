@@ -109,7 +109,7 @@ class GeneradorApp(QWidget):
             prueba = self.prueba_combo.currentText()
             intervalos = int(self.intervalos_input.currentText())
             usar_existente = self.usar_existente_checkbox.isChecked()
-            print("Intervalo q usar el negro este: ", intervalos)
+            
 
             if usar_existente:
                 try:
