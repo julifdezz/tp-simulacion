@@ -67,7 +67,7 @@ def frec_esp_normal(vec_li, vec_ls, mu, sigma, numeros):
         vec_fe.append(fe)
     return vec_fe
 
-# Poisson ( fe = (e^(-lambda)*lambda^(x))/x!)*n siendo x: lim_inf o lim_sup) 
+# Poisson ( fe = (e^(-l__ambda)*lambda^(x))/x!)*n siendo x: lim_inf o lim_sup) 
 def frec_esp_poisson(vec_li, vec_ls, mu, numeros):
     vec_fe = []
     n = len(numeros)
